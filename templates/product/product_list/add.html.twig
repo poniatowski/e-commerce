@@ -1,0 +1,29 @@
+{% extends 'master.html.twig' %}
+
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="get-quote">
+        <div class="row">
+            <div class="col-sm-10 col-12">
+                <h3 id="quote">Add Product</h3>
+            </div>
+            <div class="col-sm-2 col-12">
+                <a href="{{ path('product_list') }}"
+                   class="btn btn-primary active pull-right"
+                   role="button"
+                   aria-pressed="true">Back to product list
+                </a>
+            </div>
+        </div>
+    </div>
+    {% if errors is defined%}
+    {% for error in errors %}
+        <li>{{ error.message }}</li>
+    {% endfor %}
+    {% endif %}
+
+    {{ form(form) }}
+</div>
+{% endblock %}

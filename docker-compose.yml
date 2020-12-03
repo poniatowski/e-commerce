@@ -1,0 +1,52 @@
+version: "3.1"
+services:
+
+  postgres:
+    image: postgres:11.1-alpine
+    container_name: postgres
+    working_dir: /application
+    volumes:
+      - .:/application
+    environment:
+      - POSTGRES_USER=postgresql
+      - POSTGRES_PASSWORD=postgresql
+      - POSTGRES_DB=postgresql
+      - COMPOSE_PROJECT_NAME=e-commerce
+    ports:
+      - "5432:5432"
+
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    depends_on:
+      - postgres
+      - php-fpm
+    environment:
+      - COMPOSE_PROJECT_NAME=e-commerce
+    working_dir: /application
+    volumes:
+        - .:/application
+        - ./docker/dev/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+     - "8080:80"
+
+  php-fpm:
+    build: docker/dev/php-fpm
+    environment:
+      - PHP_IDE_CONFIG=serverName=e-commerce
+      - COMPOSE_PROJECT_NAME=e-commerce
+    container_name: php-fpm
+    working_dir: /application
+    volumes:
+      - .:/application:delegated
+      - ./docker/dev/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+
+  mailhog:
+    environment:
+      - COMPOSE_PROJECT_NAME=e-commerce
+    container_name: mail
+    image: mailhog/mailhog:latest
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"

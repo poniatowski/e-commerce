@@ -1,0 +1,33 @@
+version: "3.1"
+services:
+
+  postgres-test:
+    image: postgres:11.1-alpine
+    container_name: postgres-test
+    working_dir: /application
+    volumes:
+      - .:/application
+    environment:
+      - POSTGRES_USER=postgresql
+      - POSTGRES_PASSWORD=postgresql
+      - POSTGRES_DB=postgresql
+      - COMPOSE_PROJECT_NAME=e-commerce-test
+    ports:
+      - "5430:5432"
+
+  test:
+    container_name: test
+    depends_on:
+      - postgres-test
+    working_dir: /application
+    environment:
+      - PHP_IDE_CONFIG=serverName=test
+      - COMPOSE_PROJECT_NAME=e-commerce-test-test
+    build:
+      context: ./docker/test
+      dockerfile: Dockerfile
+    volumes:
+      - .:/application:delegated
+      - ./vendor:/application/vendor:cached
+      - ./docker/test/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+    command: composer qa
